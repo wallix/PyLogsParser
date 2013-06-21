@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--                                                            -->
+<!-- pylogparser - Logs parsers python library                  -->
+<!-- Copyright (C) 2013 eNovance SAS <licensing@enovance.com>   -->
+<!--                                                            -->
+<!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--                                                            -->
+<!-- This package is free software; you can redistribute        -->
+<!-- it and/or modify it under the terms of the GNU Lesser      -->
+<!-- General Public License as published by the Free Software   -->
+<!-- Foundation; either version 2.1 of the License, or (at      -->
+<!-- your option) any later version.                            -->
+<!--                                                            -->
+<!-- This package is distributed in the hope that it will be    -->
+<!-- useful, but WITHOUT ANY WARRANTY; without even the implied -->
+<!-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR    -->
+<!-- PURPOSE.  See the GNU Lesser General Public License for    -->
+<!-- more details.                                              -->
+<!--                                                            -->
+<!-- You should have received a copy of the GNU Lesser General  -->
+<!-- Public License along with this package; if not, write      -->
+<!-- to the Free Software Foundation, Inc., 59 Temple Place,    -->
+<!-- Suite 330, Boston, MA  02111-1307  USA                     -->
+<!--                                                            -->
+<!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!DOCTYPE normalizer SYSTEM "normalizer.dtd">
+<normalizer name="Swift proxy"
+            version="0.01"
+            unicode="yes"
+            ignorecase="yes"
+            matchtype="match"
+            appliedTo="raw">
+
+  <description>
+    <localized_desc language="en">This normalizer parses the messages issued by the Swift (OpensStack) proxy server.</localized_desc>
+    <localized_desc language="fr">Ce normaliseur analyse les logs produits par le proxy serveur de Swift (OpenStack).</localized_desc>
+  </description>
+  <authors>
+    <author>joe.hakim.rahme@enovance.com</author>
+  </authors>
+  <tagTypes>
+    <tagType name="RESTPath" type="basestring">
+      <regexp>(/[^ ]*)+</regexp>
+    </tagType>
+    <tagType name="Word" type="basestring">
+      <regexp>[^ ]*</regexp>
+    </tagType>
+    <tagType name="IntOrDash" type="basestring">
+      <regexp>[0-9]+|-</regexp>
+    </tagType>
+  </tagTypes>
+  <callbacks>
+    <callback name="get_tenant">
+log['tenant'] = [x.split("_")[1] for x in value.split("/") if "AUTH" in x][0]
+    </callback>
+  </callbacks>
+  <patterns>
+    <pattern name="sized requests">
+      <description>
+          <localized_desc language="en">Proxy server logs entries detailing IO</localized_desc>
+          <localized_desc language="fr">Les entrees du logs du proxy concernant l'IO</localized_desc>
+        </description>
+        <text>.* source_ip destination_ip access_time method rest_path protocol status_int referer user_agent auth_token bytes_recieved bytes_sent client_etag transaction_id .*</text><!-- headers request_time source </text> -->
+            <tags>
+	      <tag name="client_ip" tagType="IP">
+		<substitute>source_ip</substitute>
+	      </tag>
+	      <tag name="remote_addr" tagType="IP">
+		<substitute>destination_ip</substitute>
+	      </tag>
+	      <tag name="access_time" tagType="Anything">
+		<substitute>access_time</substitute>
+	      </tag>
+	      <tag name="request_method" tagType="HTTPRequest">
+		<substitute>method</substitute>
+	      </tag>
+              <tag name="path" tagType="RESTPath">
+                <substitute>rest_path</substitute>
+                <callbacks>
+                  <callback>get_tenant</callback>
+                </callbacks>
+              </tag>
+	      <tag name="protocol" tagType="Word">
+		<substitute>protocol</substitute>
+	      </tag>
+	      <tag name="status" tagType="Integer">
+		<substitute>status_int</substitute>
+	      </tag>
+	      <tag name="referer" tagType="Word">
+	      	<substitute>referer</substitute>
+	      </tag>
+	      <tag name="user agent" tagType="Word">
+	      	<substitute>user_agent</substitute>
+	      </tag>
+	      <tag name="auth token" tagType="Word">
+	      	<substitute>auth_token</substitute>
+	      </tag>
+	      <tag name="bytes recieved" tagType="IntOrDash">
+	      	<substitute>bytes_recieved</substitute>
+	      </tag>
+	      <tag name="bytes sent" tagType="IntOrDash">
+	      	<substitute>bytes_sent</substitute>
+	      </tag>
+	      <tag name="client etag" tagType="Word">
+	      	<substitute>client_etag</substitute>
+	      </tag>
+	      <tag name="transaction" tagType="Word">
+	      	<substitute>transaction_id</substitute>
+	      </tag>
+	      <tag name="headers" tagType="Word">
+	      	<substitute>headers</substitute>
+	      </tag>
+	      <tag name="request_time" tagType="Word">
+	      	<substitute>request_time</substitute>
+	      </tag>
+	      <tag name="source" tagType="Word">
+	      	<substitute>source</substitute>
+	      </tag>
+	      <tag name="log info" tagType="Word">
+	      	<substitute>log_info</substitute>
+	      </tag>
+            </tags>
+            <examples>
+                <example>
+                     <text>10.192.3.2 10.192.3.2 13/Jun/2013/12/19/43 PUT /v1/AUTH_ec81e70f6644496281e3bc4db78c8eea/CLOUDWATTBOX/nexfp/storage/51b9b8dfa04c342311000009/output.pdf-1st-page HTTP/1.0 201 - OpenStack%20Ruby%20API%201.0.6 76a30793e60b4538a4a3431930dc7080 11437 - - txdfc21d1a2a03444991b2c18fd3b659b4 - 0.0555 -</text>
+                     <expectedTags>
+                          <expectedTag name="mypath">/v1/AUTH_ec81e70f6644496281e3bc4db78c8eea/CLOUDWATTBOX/nexfp/storage/51b9b8dfa04c342311000009/output.pdf-1st-page</expectedTag>
+                     </expectedTags>
+                </example>
+            </examples>
+        </pattern>
+    </patterns>
+</normalizer>
