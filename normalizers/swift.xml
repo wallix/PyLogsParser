@@ -63,63 +63,63 @@ log['tenant'] = [x.split("_")[1] for x in value.split("/") if "AUTH" in x][0]
         </description>
         <text>.* source_ip destination_ip access_time method rest_path protocol status_int referer user_agent auth_token bytes_recieved bytes_sent client_etag transaction_id .*</text><!-- headers request_time source </text> -->
             <tags>
-	      <tag name="client_ip" tagType="IP">
-		<substitute>source_ip</substitute>
-	      </tag>
-	      <tag name="remote_addr" tagType="IP">
-		<substitute>destination_ip</substitute>
-	      </tag>
-	      <tag name="access_time" tagType="Anything">
-		<substitute>access_time</substitute>
-	      </tag>
-	      <tag name="request_method" tagType="HTTPRequest">
-		<substitute>method</substitute>
-	      </tag>
+              <tag name="client_ip" tagType="IP">
+                <substitute>source_ip</substitute>
+              </tag>
+              <tag name="remote_addr" tagType="IP">
+                <substitute>destination_ip</substitute>
+              </tag>
+              <tag name="access_time" tagType="Anything">
+                <substitute>access_time</substitute>
+              </tag>
+              <tag name="request_method" tagType="HTTPRequest">
+                <substitute>method</substitute>
+              </tag>
               <tag name="path" tagType="RESTPath">
                 <substitute>rest_path</substitute>
                 <callbacks>
                   <callback>get_tenant</callback>
                 </callbacks>
               </tag>
-	      <tag name="protocol" tagType="Word">
-		<substitute>protocol</substitute>
-	      </tag>
-	      <tag name="status" tagType="Integer">
-		<substitute>status_int</substitute>
-	      </tag>
-	      <tag name="referer" tagType="Word">
-	      	<substitute>referer</substitute>
-	      </tag>
-	      <tag name="user agent" tagType="Word">
-	      	<substitute>user_agent</substitute>
-	      </tag>
-	      <tag name="auth token" tagType="Word">
-	      	<substitute>auth_token</substitute>
-	      </tag>
-	      <tag name="bytes recieved" tagType="IntOrDash">
-	      	<substitute>bytes_recieved</substitute>
-	      </tag>
-	      <tag name="bytes sent" tagType="IntOrDash">
-	      	<substitute>bytes_sent</substitute>
-	      </tag>
-	      <tag name="client etag" tagType="Word">
-	      	<substitute>client_etag</substitute>
-	      </tag>
-	      <tag name="transaction" tagType="Word">
-	      	<substitute>transaction_id</substitute>
-	      </tag>
-	      <tag name="headers" tagType="Word">
-	      	<substitute>headers</substitute>
-	      </tag>
-	      <tag name="request_time" tagType="Word">
-	      	<substitute>request_time</substitute>
-	      </tag>
-	      <tag name="source" tagType="Word">
-	      	<substitute>source</substitute>
-	      </tag>
-	      <tag name="log info" tagType="Word">
-	      	<substitute>log_info</substitute>
-	      </tag>
+              <tag name="protocol" tagType="Word">
+                <substitute>protocol</substitute>
+              </tag>
+              <tag name="status" tagType="Integer">
+                <substitute>status_int</substitute>
+              </tag>
+              <tag name="referer" tagType="Word">
+                <substitute>referer</substitute>
+              </tag>
+              <tag name="user agent" tagType="Word">
+                <substitute>user_agent</substitute>
+              </tag>
+              <tag name="auth token" tagType="Word">
+                <substitute>auth_token</substitute>
+              </tag>
+              <tag name="bytes recieved" tagType="IntOrDash">
+                <substitute>bytes_recieved</substitute>
+              </tag>
+              <tag name="bytes sent" tagType="IntOrDash">
+                <substitute>bytes_sent</substitute>
+              </tag>
+              <tag name="client etag" tagType="Word">
+                <substitute>client_etag</substitute>
+              </tag>
+              <tag name="transaction" tagType="Word">
+                <substitute>transaction_id</substitute>
+              </tag>
+              <tag name="headers" tagType="Word">
+                <substitute>headers</substitute>
+              </tag>
+              <tag name="request_time" tagType="Word">
+                <substitute>request_time</substitute>
+              </tag>
+              <tag name="source" tagType="Word">
+                <substitute>source</substitute>
+              </tag>
+              <tag name="log info" tagType="Word">
+                <substitute>log_info</substitute>
+              </tag>
             </tags>
             <examples>
                 <example>
