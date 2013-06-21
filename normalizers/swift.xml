@@ -54,6 +54,12 @@
     <callback name="get_tenant">
 log['tenant'] = [x.split("_")[1] for x in value.split("/") if "AUTH" in x][0]
     </callback>
+    <callback name="zero_recieved">
+log['bytes recieved'] = '0' if value == '-' else value
+    </callback>
+    <callback name="zero_sent">
+log['bytes sent'] = '0' if value == '-' else value
+    </callback>
   </callbacks>
   <patterns>
     <pattern name="sized requests">
@@ -98,9 +104,15 @@ log['tenant'] = [x.split("_")[1] for x in value.split("/") if "AUTH" in x][0]
               </tag>
               <tag name="bytes recieved" tagType="IntOrDash">
                 <substitute>bytes_recieved</substitute>
+		<callbacks>
+		  <callback>zero_recieved</callback>
+		</callbacks>
               </tag>
               <tag name="bytes sent" tagType="IntOrDash">
                 <substitute>bytes_sent</substitute>
+		<callbacks>
+		  <callback>zero_sent</callback>
+		</callbacks>
               </tag>
               <tag name="client etag" tagType="Word">
                 <substitute>client_etag</substitute>
