@@ -177,6 +177,9 @@ class TestSample(unittest.TestCase):
     def test_normalize_samples_037_wabObject(self):
         self.normalize_samples('wabObjects.xml', 'wabObject', 0.99)
 
+    def test_normalize_samples_037_apache(self):
+        self.normalize_samples('apache_error.xml', 'apache_error', 0.99)
+
 class TestCSVPattern(unittest.TestCase):
     """Test CSVPattern behaviour"""
     normalizer_path = os.environ['NORMALIZERS_PATH']

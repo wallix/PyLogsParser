@@ -502,6 +502,38 @@ class Test(unittest.TestCase):
         # Test "vhost_combined" log format "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\""
         #TODO: Update apache normalizer to handle this format.
 
+    def test_apache_error(self):
+        """Test Apache error log normalization.
+        The format of the error log is relatively free-form and descriptive"""
+        # Test Apache error log format with referer included
+        # %t \[%s\] \[client %h\] %m, referer: %u
+        self.aS("""[Wed Oct 11 14:32:52 2000] [error] [client 127.0.0.1] PHP Parse error:  syntax error, unexpected '=' in /var/www/foo.php on line 70, referer: http://example.com/foo""",
+                {'program' : "apache",
+                 'source_ip' : "127.0.0.1",
+                 'status': 'error',
+                 'message': 'PHP Parse error:  syntax error, unexpected \'=\' in /var/www/foo.php on line 70',
+                 'date' : datetime(2000, 10, 11, 14, 32, 52),
+                 'body' : '[Wed Oct 11 14:32:52 2000] [error] [client 127.0.0.1] PHP Parse error:  syntax error, unexpected \'=\' in /var/www/foo.php on line 70, referer: http://example.com/foo'})
+
+        # Test Apache error log format without referer
+        # %t \[%s\] \[client %h\] %m
+        self.aS('[Wed Oct 11 14:32:52 2000] [error] [client 127.0.0.1] client denied by server configuration: /export/home/live/ap/htdocs/test',
+                {'program' : "apache",
+                 'source_ip' : "127.0.0.1",
+                 'status': 'error',
+                 'message': 'client denied by server configuration: /export/home/live/ap/htdocs/test',
+                 'date' : datetime(2000, 10, 11, 14, 32, 52),
+                 'body' : '[Wed Oct 11 14:32:52 2000] [error] [client 127.0.0.1] client denied by server configuration: /export/home/live/ap/htdocs/test'})
+
+        # Test Apache error log format without client ip
+        # %t \[%s\] %m
+        self.aS('[Wed Oct 11 14:32:52 2000] [notice] mod_python: Creating 8 session mutexes based on 150 max processes and 0 max threads.',
+                {'program' : "apache",
+                 'date' : datetime(2000, 10, 11, 14, 32, 52),
+                 'status': 'notice',
+                 'message': 'mod_python: Creating 8 session mutexes based on 150 max processes and 0 max threads.',
+                 'body' : '[Wed Oct 11 14:32:52 2000] [notice] mod_python: Creating 8 session mutexes based on 150 max processes and 0 max threads.'})
+
 
     def test_bind9(self):
         """Test Bind9 normalization"""

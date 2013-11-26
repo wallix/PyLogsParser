@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--                                                            -->
+<!-- pylogparser - Logs parsers python library                  -->
+<!-- Copyright (C) 2011 Wallix Inc.                             -->
+<!--                                                            -->
+<!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!--                                                            -->
+<!-- This package is free software; you can redistribute        -->
+<!-- it and/or modify it under the terms of the GNU Lesser      -->
+<!-- General Public License as published by the Free Software   -->
+<!-- Foundation; either version 2.1 of the License, or (at      -->
+<!-- your option) any later version.                            -->
+<!--                                                            -->
+<!-- This package is distributed in the hope that it will be    -->
+<!-- useful, but WITHOUT ANY WARRANTY; without even the implied -->
+<!-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR    -->
+<!-- PURPOSE.  See the GNU Lesser General Public License for    -->
+<!-- more details.                                              -->
+<!--                                                            -->
+<!-- You should have received a copy of the GNU Lesser General  -->
+<!-- Public License along with this package; if not, write      -->
+<!-- to the Free Software Foundation, Inc., 59 Temple Place,    -->
+<!-- Suite 330, Boston, MA  02111-1307  USA                     -->
+<!--                                                            -->
+<!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<!DOCTYPE normalizer SYSTEM "normalizer.dtd">
+<normalizer name="apache_error"
+            version="0.99"
+            unicode="yes"
+            ignorecase="yes"
+            matchtype="match"
+            appliedTo="body"
+            taxonomy="web server">
+    <description>
+        <localized_desc language="en">Apache error log normalizer. http://httpd.apache.org/docs/2.2/logs.html#errorlog</localized_desc>
+    </description>
+    <authors>
+        <author>kolkabes@gmail.com</author>
+    </authors>
+    <tagTypes>
+        <tagType name="CommonTimeFormat" type="datetime">
+            <description>
+                <localized_desc language="en">Matches apache's error log common time format.</localized_desc>
+            </description>
+            <regexp>\[\w{3}\s\w{3}\s\d{2}\s\d{2}:\d{2}:\d{2}\s\d{4}\]</regexp>
+        </tagType>
+        <tagType name="ApacheWord" type="basestring">
+            <description>
+                <localized_desc language="en">status, ...</localized_desc>
+            </description>
+            <regexp>[\w.-]+</regexp>
+        </tagType>
+    </tagTypes>
+    <patterns>
+        <pattern name="apache-error-001">
+            <description>
+                <localized_desc language="en">
+                    Apache error log format with referer.
+                </localized_desc>
+            </description>
+            <text>%t \[%s\] \[client %h\] %m, referer: %u</text>
+            <tags>
+                <tag name="source_ip" tagType="IP">
+                    <description>
+                        <localized_desc language="en">the remote host initiating the request</localized_desc>
+                    </description>
+                    <substitute>%h</substitute>
+                </tag>
+                <tag name="status" tagType="ApacheWord">
+                    <description>
+                        <localized_desc language="en">error status level (error, warn, info, ...)</localized_desc>
+                    </description>
+                    <substitute>%s</substitute>
+                </tag>
+                <tag name="__date" tagType="CommonTimeFormat">
+                    <description>
+                     <localized_desc language="en">the date on which entry was made - please note that the timezone information is not carried over</localized_desc>
+                    </description>
+                    <substitute>%t</substitute>
+                    <callbacks>
+                    <callback>DDD MMM dd hh:mm:ss YYYY</callback>
+                    </callbacks>
+                </tag>
+                <tag name="message" tagType="Anything">
+                    <description>
+                        <localized_desc language="en">error message</localized_desc>
+                    </description>
+                    <substitute>%m</substitute>
+                </tag>
+                <tag name="url" tagType="URL">
+                    <description>
+                        <localized_desc language="en">HTTP referer, URL that was visited whenever error occured</localized_desc>
+                    </description>
+                    <substitute>%u</substitute>
+                </tag>
+            </tags>
+            <examples>
+                <example>
+                     <text>[Wed Oct 11 14:32:52 2000] [error] [client 127.0.0.1] PHP Parse error:  syntax error, unexpected '=' in /var/www/foo.php on line 70, referer: http://example.com/foo</text>
+                     <expectedTags>
+                          <expectedTag name="source_ip">127.0.0.1</expectedTag>
+                          <expectedTag name="status">error</expectedTag>
+                          <expectedTag name="url">http://example.com/foo</expectedTag>
+                          <expectedTag name="message">PHP Parse error:  syntax error, unexpected '=' in /var/www/foo.php on line 70</expectedTag>
+                          <expectedTag name="taxonomy">web server</expectedTag>
+                     </expectedTags>
+                </example>
+            </examples>
+        </pattern>
+        <pattern name="apache-error-002">
+            <description>
+                <localized_desc language="en">Apache error log format. More general format.</localized_desc>
+            </description>
+            <text>%t \[%s\] \[client %h\] %m</text>
+            <tags>
+                <tag name="source_ip" tagType="IP">
+                    <description>
+                        <localized_desc language="en">the remote host initiating the request</localized_desc>
+                    </description>
+                    <substitute>%h</substitute>
+                </tag>
+                <tag name="status" tagType="ApacheWord">
+                    <description>
+                        <localized_desc language="en">error status level (error, warn, info, ...)</localized_desc>
+                    </description>
+                    <substitute>%s</substitute>
+                </tag>
+                <tag name="__date" tagType="CommonTimeFormat">
+                    <description>
+                        <localized_desc language="en">the date on which error occured - please note that the timezone information is not carried over</localized_desc>
+                    </description>
+                    <substitute>%t</substitute>
+                    <callbacks>
+                        <callback>DDD MMM dd hh:mm:ss YYYY</callback>
+                    </callbacks>
+                </tag>
+                <tag name="message" tagType="Anything">
+                    <description>
+                        <localized_desc language="en">error message</localized_desc>
+                    </description>
+                    <substitute>%m</substitute>
+                </tag>
+            </tags>
+            <examples>
+                <example>
+                     <text>[Wed Oct 11 14:32:52 2000] [error] [client 127.0.0.1] client denied by server configuration: /export/home/live/ap/htdocs/test</text>
+                     <expectedTags>
+                          <expectedTag name="source_ip">127.0.0.1</expectedTag>
+                          <expectedTag name="status">error</expectedTag>
+                          <expectedTag name="message">client denied by server configuration: /export/home/live/ap/htdocs/test</expectedTag>
+                          <expectedTag name="taxonomy">web server</expectedTag>
+                     </expectedTags>
+                </example>
+            </examples>
+        </pattern>
+        <pattern name="apache-error-003">
+            <description>
+                <localized_desc language="en">Apache error log format. Without [client *ip*] part.</localized_desc>
+            </description>
+            <text>%t \[%s\] %m</text>
+            <tags>
+                <tag name="status" tagType="ApacheWord">
+                    <description>
+                        <localized_desc language="en">error status level (error, warn, info, ...)</localized_desc>
+                    </description>
+                    <substitute>%s</substitute>
+                </tag>
+                <tag name="__date" tagType="CommonTimeFormat">
+                    <description>
+                        <localized_desc language="en">the date on which error occured - please note that the timezone information is not carried over</localized_desc>
+                    </description>
+                    <substitute>%t</substitute>
+                    <callbacks>
+                        <callback>DDD MMM dd hh:mm:ss YYYY</callback>
+                    </callbacks>
+                </tag>
+                <tag name="message" tagType="Anything">
+                    <description>
+                        <localized_desc language="en">error message</localized_desc>
+                    </description>
+                    <substitute>%m</substitute>
+                </tag>
+            </tags>
+            <examples>
+                <example>
+                     <text>[Wed Oct 11 14:32:52 2000] [notice] mod_python: Creating 8 session mutexes based on 150 max processes and 0 max threads.</text>
+                     <expectedTags>
+                          <expectedTag name="status">notice</expectedTag>
+                          <expectedTag name="message">mod_python: Creating 8 session mutexes based on 150 max processes and 0 max threads.</expectedTag>
+                          <expectedTag name="taxonomy">web server</expectedTag>
+                     </expectedTags>
+                </example>
+            </examples>
+        </pattern>
+    </patterns>
+    <commonTags>
+        <commonTag name="program">apache</commonTag>
+    </commonTags>
+</normalizer>
+
